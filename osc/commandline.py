@@ -6046,6 +6046,8 @@ Please submit there instead, or use --nodevelproject to force direct submission.
                         help='list packages vertically instead horizontally for entire project')
     @cmdln.option('-w', '--watch', action='store_true',
                         help='watch the results until all finished building')
+    @cmdln.option('-F', '--fail-on-error', action='store_true',
+                        help='fail with exit 1 if any build has errored')
     @cmdln.option('-s', '--status-filter',
                         help='only show packages with the given build status')
     @cmdln.option('-f', '--failed', action='store_true',
@@ -6129,7 +6131,14 @@ Please submit there instead, or use --nodevelproject to force direct submission.
             kwargs['verbose'] = opts.verbose
             kwargs['wait'] = opts.watch
             kwargs['printJoin'] = '\n'
-            get_results(**kwargs)
+
+            out = {}
+            get_results(out=out, **kwargs)
+
+            if opts.fail_on_error and out['failed']:
+                sys.exit(1)
+
+
 
     # WARNING: this function is also called by do_results. You need to set a default there
     #          as well when adding a new option!
